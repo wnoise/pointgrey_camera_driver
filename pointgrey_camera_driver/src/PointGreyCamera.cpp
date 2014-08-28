@@ -165,6 +165,18 @@ bool PointGreyCamera::setNewConfiguration(pointgrey_camera_driver::PointGreyConf
   return retVal;
 }
 
+void PointGreyCamera::setShutterSequence_ms(const std::vector<uint32_t> &sequence)
+{
+  if (sequence.size() > 1) {
+    throw std::runtime_error("PointGreyCamera::setShutterSequence_ms: Multi shutter / HDR not implemented.");
+  }
+  if (sequence.size() < 1) {
+    throw std::runtime_error("PointGreyCamera::setShutterSequence_ms: Can't set empty sequence.");
+  }
+  double shutter_length_ms = sequence[0];
+  PointGreyCamera::setProperty(SHUTTER, false, shutter_length_ms);
+}
+
 void PointGreyCamera::setGain(double &gain)
 {
   PointGreyCamera::setProperty(GAIN, false, gain);

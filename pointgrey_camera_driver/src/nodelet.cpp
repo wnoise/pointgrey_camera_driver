@@ -385,6 +385,9 @@ private:
       wb_blue_ = msg.white_balance_blue;
       wb_red_ = msg.white_balance_red;
       pg_.setBRWhiteBalance(wb_blue_, wb_red_);
+      if (!msg.shutter.empty()) {
+        pg_.setShutterSequence_ms(msg.shutter);
+      }
     }
     catch(std::runtime_error& e)
     {

@@ -141,6 +141,19 @@ public:
   */
   float getCameraTemperature();
 
+  /*!
+  * \brief Sets the shutter times at which an image is taken.
+  *
+  *  Sets the shutter times at which an image is taken. Some point grey
+  *  cameras have a feature to take multiple images at different shutter
+  *  times, possibly intended for HDR support.
+  *
+  *  This is only partially implemented; the first shutter time is used.
+  *
+  * \param sequence vector of shutter times, in milliseconds.
+  */
+  void setShutterSequence_ms(const std::vector<uint32_t> &sequence);
+
   void setGain(double &gain);
 
   void setBRWhiteBalance(uint16_t &blue, uint16_t &red);
