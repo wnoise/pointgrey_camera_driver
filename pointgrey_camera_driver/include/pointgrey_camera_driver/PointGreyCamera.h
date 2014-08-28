@@ -161,7 +161,7 @@ private:
 
   uint32_t serial_; ///< A variable to hold the serial number of the desired camera.
   FlyCapture2::BusManager busMgr_; ///< A FlyCapture2::BusManager that is responsible for finding the appropriate camera.
-  FlyCapture2::Camera cam_; ///<  A FlyCapture2::Camera set by the bus manager.
+  FlyCapture2::CameraBase *cam_; ///<  Points to a FlyCapture2::Camera or FlyCapture2::GigECamera set by the bus manager.
   FlyCapture2::ImageMetadata metadata_; ///< Metadata from the last image, stores useful information such as timestamp, gain, shutter, brightness, exposure.
 
   boost::mutex mutex_; ///< A mutex to make sure that we don't try to grabImages while reconfiguring or vice versa.  Implemented with boost::mutex::scoped_lock.

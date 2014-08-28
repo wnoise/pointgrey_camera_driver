@@ -49,7 +49,7 @@ PointGreyCamera::~PointGreyCamera()
 
 bool PointGreyCamera::setNewConfiguration(pointgrey_camera_driver::PointGreyConfig &config, const uint32_t &level)
 {
-  if(!cam_.IsConnected())
+  if(!cam_->IsConnected())
   {
     PointGreyCamera::connect();
     //throw std::runtime_error("PointGreyCamera::setNewConfiguration Camera not connected. Reconfigure has not taken effect!");
@@ -195,7 +195,7 @@ void PointGreyCamera::setVideoMode(FlyCapture2::VideoMode &videoMode)
   {
     frameRate = FRAMERATE_FORMAT7;
   }
-  Error error = cam_.SetVideoModeAndFrameRate(videoMode, frameRate);
+  Error error = cam_->SetVideoModeAndFrameRate(videoMode, frameRate);
   PointGreyCamera::handleError("PointGreyCamera::setVideoMode Could not set video mode", error);
 }
 
@@ -210,7 +210,7 @@ bool PointGreyCamera::setFormat7(FlyCapture2::Mode &fmt7Mode, FlyCapture2::Pixel
   Format7Info fmt7Info;
   bool supported;
   fmt7Info.mode = fmt7Mode;
-  error = cam_.GetFormat7Info(&fmt7Info, &supported);
+  error = cam_->GetFormat7Info(&fmt7Info, &supported);
   PointGreyCamera::handleError("PointGreyCamera::setFormat7 Could not get Format 7 information", error);
   if(!supported)
   {
@@ -277,7 +277,7 @@ bool PointGreyCamera::setFormat7(FlyCapture2::Mode &fmt7Mode, FlyCapture2::Pixel
   // Validate the settings to make sure that they are valid
   Format7PacketInfo fmt7PacketInfo;
   bool valid;
-  error = cam_.ValidateFormat7Settings(&fmt7ImageSettings, &valid, &fmt7PacketInfo);
+  error = cam_->ValidateFormat7Settings(&fmt7ImageSettings, &valid, &fmt7PacketInfo);
   PointGreyCamera::handleError("PointGreyCamera::setFormat7 Error validating Format 7 settings", error);
   if(!valid)
   {
@@ -285,7 +285,7 @@ bool PointGreyCamera::setFormat7(FlyCapture2::Mode &fmt7Mode, FlyCapture2::Pixel
   }
 
   // Stop the camera to allow settings to change.
-  error = cam_.SetFormat7Configuration(&fmt7ImageSettings, fmt7PacketInfo.recommendedBytesPerPacket);
+  error = cam_->SetFormat7Configuration(&fmt7ImageSettings, fmt7PacketInfo.recommendedBytesPerPacket);
   PointGreyCamera::handleError("PointGreyCamera::setFormat7 Could not send Format7 configuration to the camera", error);
 
   return retVal;
@@ -298,7 +298,7 @@ bool PointGreyCamera::getVideoModeFromString(std::string &vmode, FlyCapture2::Vi
 
   // Get camera info to check if color or black and white chameleon
   CameraInfo cInfo;
-  Error error = cam_.GetCameraInfo(&cInfo);
+  Error error = cam_->GetCameraInfo(&cInfo);
   PointGreyCamera::handleError("PointGreyCamera::getVideoModeFromString  Failed to get camera info.", error);
 
   if(vmode.compare("640x480_mono8") == 0)
@@ -368,7 +368,7 @@ bool PointGreyCamera::getFormat7PixelFormatFromString(FlyCapture2::Mode &fmt7Mod
 
   // Get camera info to check if color or black and white camera
   CameraInfo cInfo;
-  Error error = cam_.GetCameraInfo(&cInfo);
+  Error error = cam_->GetCameraInfo(&cInfo);
   PointGreyCamera::handleError("PointGreyCamera::getFormat7PixelFormatFromString  Failed to get camera info.", error);
 
   if(fmt7Mode == MODE_0)   // Only supports raw8 and raw16, since this is Bayer
@@ -456,7 +456,7 @@ bool PointGreyCamera::setProperty(const FlyCapture2::PropertyType &type, const b
 
   PropertyInfo pInfo;
   pInfo.type = type;
-  Error error = cam_.GetPropertyInfo(&pInfo);
+  Error error = cam_->GetPropertyInfo(&pInfo);
   PointGreyCamera::handleError("PointGreyCamera::setProperty Could not get property info.", error);
 
   if(pInfo.present)
@@ -489,11 +489,11 @@ bool PointGreyCamera::setProperty(const FlyCapture2::PropertyType &type, const b
     }
     prop.valueA = valueA;
     prop.valueB = valueB;
-    error = cam_.SetProperty(&prop);
+    error = cam_->SetProperty(&prop);
     PointGreyCamera::handleError("PointGreyCamera::setProperty  Failed to set property ", error); /** @todo say which property? */
 
     // Read back setting to confirm
-    error = cam_.GetProperty(&prop);
+    error = cam_->GetProperty(&prop);
     PointGreyCamera::handleError("PointGreyCamera::setProperty  Failed to confirm property ", error); /** @todo say which property? */
     if(!prop.autoManualMode)
     {
@@ -517,7 +517,7 @@ bool PointGreyCamera::setProperty(const FlyCapture2::PropertyType &type, const b
 
   PropertyInfo pInfo;
   pInfo.type = type;
-  Error error = cam_.GetPropertyInfo(&pInfo);
+  Error error = cam_->GetPropertyInfo(&pInfo);
   PointGreyCamera::handleError("PointGreyCamera::setProperty Could not get property info.", error);
 
   if(pInfo.present)
@@ -539,11 +539,11 @@ bool PointGreyCamera::setProperty(const FlyCapture2::PropertyType &type, const b
       retVal &= false;
     }
     prop.absValue = value;
-    error = cam_.SetProperty(&prop);
+    error = cam_->SetProperty(&prop);
     PointGreyCamera::handleError("PointGreyCamera::setProperty  Failed to set property ", error); /** @todo say which property? */
 
     // Read back setting to confirm
-    error = cam_.GetProperty(&prop);
+    error = cam_->GetProperty(&prop);
     PointGreyCamera::handleError("PointGreyCamera::setProperty  Failed to confirm property ", error); /** @todo say which property? */
     if(!prop.autoManualMode)
     {
@@ -563,7 +563,7 @@ bool PointGreyCamera::setWhiteBalance(uint16_t &blue, uint16_t &red)
 
   // Get camera info to check if color or black and white chameleon
   CameraInfo cInfo;
-  Error error = cam_.GetCameraInfo(&cInfo);
+  Error error = cam_->GetCameraInfo(&cInfo);
   PointGreyCamera::handleError("PointGreyCamera::setWhiteBalance  Failed to get camera info.", error);
 
   // Set the image encoding
@@ -572,7 +572,7 @@ bool PointGreyCamera::setWhiteBalance(uint16_t &blue, uint16_t &red)
     // return true if we can set values as desired.
     PropertyInfo pInfo;
     pInfo.type = WHITE_BALANCE;
-    error = cam_.GetPropertyInfo(&pInfo);
+    error = cam_->GetPropertyInfo(&pInfo);
     PointGreyCamera::handleError("PointGreyCamera::setWhiteBalance Could not get property info.", error);
 
     Property prop;
@@ -603,11 +603,11 @@ bool PointGreyCamera::setWhiteBalance(uint16_t &blue, uint16_t &red)
     }
     prop.valueA = red; // I don't know why red comes first for them, maybe RGB?
     prop.valueB = blue;
-    error = cam_.SetProperty(&prop);
+    error = cam_->SetProperty(&prop);
     PointGreyCamera::handleError("PointGreyCamera::setWhiteBalance  Failed to set value.", error);
 
     // Read back setting to confirm
-    error = cam_.GetProperty(&prop);
+    error = cam_->GetProperty(&prop);
     PointGreyCamera::handleError("PointGreyCamera::setWhiteBalance  Failed to confirm value.", error);
     if(!prop.autoManualMode)
     {
@@ -628,14 +628,14 @@ bool PointGreyCamera::setWhiteBalance(uint16_t &blue, uint16_t &red)
 void PointGreyCamera::setTimeout(const double &timeout)
 {
   FC2Config pConfig;
-  Error error = cam_.GetConfiguration(&pConfig);
+  Error error = cam_->GetConfiguration(&pConfig);
   PointGreyCamera::handleError("PointGreyCamera::setTimeout Could not get camera configuration", error);
   pConfig.grabTimeout = (int)(1000.0 * timeout); // Needs to be in ms
   if(pConfig.grabTimeout < 0.00001)
   {
     pConfig.grabTimeout = -1; // Default - no timeout
   }
-  error = cam_.SetConfiguration(&pConfig);
+  error = cam_->SetConfiguration(&pConfig);
   PointGreyCamera::handleError("PointGreyCamera::setTimeout Could not set camera configuration", error);
 }
 
@@ -643,7 +643,7 @@ float PointGreyCamera::getCameraTemperature()
 {
   Property tProp;
   tProp.type = TEMPERATURE;
-  Error error = cam_.GetProperty(&tProp);
+  Error error = cam_->GetProperty(&tProp);
   PointGreyCamera::handleError("PointGreyCamera::getCameraTemperature Could not get property.", error);
   return tProp.valueA / 10.0f - 273.15f;  // It returns values of 10 * K
 }
@@ -652,7 +652,7 @@ float PointGreyCamera::getCameraFrameRate()
 {
   Property fProp;
   fProp.type = FRAME_RATE;
-  Error error = cam_.GetProperty(&fProp);
+  Error error = cam_->GetProperty(&fProp);
   PointGreyCamera::handleError("PointGreyCamera::getCameraFrameRate Could not get property.", error);
   std::cout << "Frame Rate is: " << fProp.absValue << std::endl;
   return fProp.absValue;
@@ -699,7 +699,7 @@ bool PointGreyCamera::setExternalStrobe(bool &enable, const std::string &dest, d
   // Check for external trigger support
   StrobeInfo strobeInfo;
   strobeInfo.source = pin;
-  Error error = cam_.GetStrobeInfo(&strobeInfo);
+  Error error = cam_->GetStrobeInfo(&strobeInfo);
   PointGreyCamera::handleError("PointGreyCamera::setExternalStrobe Could not check external strobe support.", error);
   if(strobeInfo.present != true)
   {
@@ -710,16 +710,16 @@ bool PointGreyCamera::setExternalStrobe(bool &enable, const std::string &dest, d
 
   StrobeControl strobeControl;
   strobeControl.source = pin;
-  error = cam_.GetStrobe(&strobeControl);
+  error = cam_->GetStrobe(&strobeControl);
   PointGreyCamera::handleError("PointGreyCamera::setExternalStrobe Could not get strobe control.", error);
   strobeControl.duration = duration;
   strobeControl.delay = delay;
   strobeControl.onOff = enable;
   strobeControl.polarity = polarityHigh;
 
-  error = cam_.SetStrobe(&strobeControl);
+  error = cam_->SetStrobe(&strobeControl);
   PointGreyCamera::handleError("PointGreyCamera::setExternalStrobe Could not set strobe control.", error);
-  error = cam_.GetStrobe(&strobeControl);
+  error = cam_->GetStrobe(&strobeControl);
   PointGreyCamera::handleError("PointGreyCamera::setExternalStrobe Could not get strobe control.", error);
   delay = strobeControl.delay;
   enable = strobeControl.onOff;
@@ -734,7 +734,7 @@ bool PointGreyCamera::setExternalTrigger(bool &enable, std::string &mode, std::s
   bool retVal = true;
   // Check for external trigger support
   TriggerModeInfo triggerModeInfo;
-  Error error = cam_.GetTriggerModeInfo(&triggerModeInfo);
+  Error error = cam_->GetTriggerModeInfo(&triggerModeInfo);
   PointGreyCamera::handleError("PointGreyCamera::setExternalTrigger Could not check external trigger support.", error);
   if(triggerModeInfo.present != true)
   {
@@ -744,7 +744,7 @@ bool PointGreyCamera::setExternalTrigger(bool &enable, std::string &mode, std::s
   }
 
   TriggerMode triggerMode;
-  error = cam_.GetTriggerMode(&triggerMode);
+  error = cam_->GetTriggerMode(&triggerMode);
   PointGreyCamera::handleError("PointGreyCamera::setExternalTrigger Could not get trigger mode.", error);
   triggerMode.onOff = enable;
 
@@ -794,9 +794,9 @@ bool PointGreyCamera::setExternalTrigger(bool &enable, std::string &mode, std::s
 
   triggerMode.polarity = polarityHigh;
 
-  error = cam_.SetTriggerMode(&triggerMode);
+  error = cam_->SetTriggerMode(&triggerMode);
   PointGreyCamera::handleError("PointGreyCamera::setExternalTrigger Could not set trigger mode.", error);
-  error = cam_.GetTriggerMode(&triggerMode);
+  error = cam_->GetTriggerMode(&triggerMode);
   PointGreyCamera::handleError("PointGreyCamera::setExternalTrigger Could not get trigger mode.", error);
   enable = triggerMode.onOff;
   std::stringstream buff;
@@ -811,9 +811,9 @@ bool PointGreyCamera::setExternalTrigger(bool &enable, std::string &mode, std::s
   triggerDelay.absControl = true;
   triggerDelay.absValue = delay;
   triggerDelay.onOff = true;
-  error = cam_.SetTriggerDelay(&triggerDelay);
+  error = cam_->SetTriggerDelay(&triggerDelay);
   PointGreyCamera::handleError("PointGreyCamera::setExternalTrigger Could not set trigger delay.", error);
-  error = cam_.GetTriggerDelay(&triggerDelay);
+  error = cam_->GetTriggerDelay(&triggerDelay);
   PointGreyCamera::handleError("PointGreyCamera::setExternalTrigger Could not get trigger delay.", error);
   delay = triggerDelay.absValue;
 
@@ -822,7 +822,7 @@ bool PointGreyCamera::setExternalTrigger(bool &enable, std::string &mode, std::s
 
 void PointGreyCamera::connect()
 {
-  if(!cam_.IsConnected())
+  if (!cam_ || !cam_->IsConnected())
   {
     Error error;
     PGRGuid guid;  // GUIDS are NOT persistent accross executions, do not store them.
@@ -839,7 +839,24 @@ void PointGreyCamera::connect()
       error  = busMgr_.GetCameraFromIndex(0, &guid);
       PointGreyCamera::handleError("PointGreyCamera::connect Failed to get first connected camera", error);
     }
-    error = cam_.Connect(&guid);
+
+    if (cam_)
+    {
+      delete cam_;
+    }
+
+    FlyCapture2::InterfaceType ifType;
+    error = busMgr_.GetInterfaceTypeFromGuid(&guid, &ifType);
+    if (ifType == FlyCapture2::INTERFACE_GIGE)
+    {
+      cam_ = new FlyCapture2::GigECamera();
+    }
+    else
+    {
+      cam_ = new FlyCapture2::Camera();
+    }
+
+    error = cam_->Connect(&guid);
     PointGreyCamera::handleError("PointGreyCamera::connect Failed to connect to camera", error);
 
     // Enable metadata
@@ -852,7 +869,7 @@ void PointGreyCamera::connect()
     info.whiteBalance.onOff = true;
     info.frameCounter.onOff = true;
     info.ROIPosition.onOff = true;
-    error = cam_.SetEmbeddedImageInfo(&info);
+    error = cam_->SetEmbeddedImageInfo(&info);
     PointGreyCamera::handleError("PointGreyCamera::connect Could not enable metadata", error);
   }
 }
@@ -861,19 +878,19 @@ void PointGreyCamera::disconnect()
 {
   boost::mutex::scoped_lock scopedLock(mutex_);
   captureRunning_ = false;
-  if(cam_.IsConnected())
+  if(cam_->IsConnected())
   {
-    Error error = cam_.Disconnect();
+    Error error = cam_->Disconnect();
     PointGreyCamera::handleError("PointGreyCamera::disconnect Failed to disconnect camera", error);
   }
 }
 
 void PointGreyCamera::start()
 {
-  if(cam_.IsConnected() && !captureRunning_)
+  if(cam_->IsConnected() && !captureRunning_)
   {
     // Start capturing images
-    Error error = cam_.StartCapture();
+    Error error = cam_->StartCapture();
     PointGreyCamera::handleError("PointGreyCamera::start Failed to start capture", error);
     captureRunning_ = true;
   }
@@ -881,11 +898,11 @@ void PointGreyCamera::start()
 
 bool PointGreyCamera::stop()
 {
-  if(cam_.IsConnected() && captureRunning_)
+  if(cam_->IsConnected() && captureRunning_)
   {
     // Stop capturing images
     captureRunning_ = false;
-    Error error = cam_.StopCapture();
+    Error error = cam_->StopCapture();
     PointGreyCamera::handleError("PointGreyCamera::stop Failed to stop capture", error);
     return true;
   }
@@ -895,12 +912,12 @@ bool PointGreyCamera::stop()
 void PointGreyCamera::grabImage(sensor_msgs::Image &image, const std::string &frame_id)
 {
   boost::mutex::scoped_lock scopedLock(mutex_);
-  if(cam_.IsConnected() && captureRunning_)
+  if(cam_->IsConnected() && captureRunning_)
   {
     // Make a FlyCapture2::Image to hold the buffer returned by the camera.
     Image rawImage;
     // Retrieve an image
-    Error error = cam_.RetrieveBuffer(&rawImage);
+    Error error = cam_->RetrieveBuffer(&rawImage);
     PointGreyCamera::handleError("PointGreyCamera::grabImage Failed to retrieve buffer", error);
     metadata_ = rawImage.GetMetadata();
 
@@ -911,7 +928,7 @@ void PointGreyCamera::grabImage(sensor_msgs::Image &image, const std::string &fr
 
     // Get camera info to check if color or black and white chameleon and check the bits per pixel.
     CameraInfo cInfo;
-    error = cam_.GetCameraInfo(&cInfo);
+    error = cam_->GetCameraInfo(&cInfo);
     PointGreyCamera::handleError("PointGreyCamera::grabImage  Failed to get camera info.", error);
     uint8_t bitsPerPixel = rawImage.GetBitsPerPixel();
 
@@ -958,7 +975,7 @@ void PointGreyCamera::grabImage(sensor_msgs::Image &image, const std::string &fr
     fillImage(image, imageEncoding, rawImage.GetRows(), rawImage.GetCols(), rawImage.GetStride(), rawImage.GetData());
     image.header.frame_id = frame_id;
   }
-  else if(cam_.IsConnected())
+  else if(cam_->IsConnected())
   {
     throw CameraNotRunningException("PointGreyCamera::grabImage: Camera is currently not running.  Please start the capture.");
   }
@@ -971,12 +988,12 @@ void PointGreyCamera::grabImage(sensor_msgs::Image &image, const std::string &fr
 void PointGreyCamera::grabStereoImage(sensor_msgs::Image &image, const std::string &frame_id, sensor_msgs::Image &second_image, const std::string &second_frame_id)
 {
   boost::mutex::scoped_lock scopedLock(mutex_);
-  if(cam_.IsConnected() && captureRunning_)
+  if(cam_->IsConnected() && captureRunning_)
   {
     // Make a FlyCapture2::Image to hold the buffer returned by the camera.
     Image rawImage;
     // Retrieve an image
-    Error error = cam_.RetrieveBuffer(&rawImage);
+    Error error = cam_->RetrieveBuffer(&rawImage);
     PointGreyCamera::handleError("PointGreyCamera::grabStereoImage Failed to retrieve buffer", error);
     metadata_ = rawImage.GetMetadata();
 
@@ -987,7 +1004,7 @@ void PointGreyCamera::grabStereoImage(sensor_msgs::Image &image, const std::stri
 
     // Get camera info to check if color or black and white chameleon and check the bits per pixel.
     CameraInfo cInfo;
-    error = cam_.GetCameraInfo(&cInfo);
+    error = cam_->GetCameraInfo(&cInfo);
     PointGreyCamera::handleError("PointGreyCamera::grabStereoImage  Failed to get camera info.", error);
 
     // GetBitsPerPixel returns 16, but that seems to mean "2 8 bit pixels, 
@@ -1055,7 +1072,7 @@ void PointGreyCamera::grabStereoImage(sensor_msgs::Image &image, const std::stri
 
     //fillImage(image, imageEncoding, rawImage.GetRows(), rawImage.GetCols(), rawImage.GetStride(), rawImage.GetData());
   }
-  else if(cam_.IsConnected())
+  else if(cam_->IsConnected())
   {
     throw CameraNotRunningException("PointGreyCamera::grabStereoImage: Camera is currently not running.  Please start the capture.");
   }
